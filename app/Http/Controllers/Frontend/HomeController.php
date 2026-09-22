@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use Illuminate\View\View;
+
+class HomeController extends Controller
+{
+    /**
+     * Display the website landing page.
+     */
+    public function index(): View
+    {
+        return view('frontend.index');
+    }
+}
