@@ -1,0 +1,185 @@
+{
+  "info": {
+    "name": "Bfinz API — OTP Mobile Login (Sanctum)",
+    "description": "Endpoints for the mobile OTP login flow (Sanctum bearer tokens) and the API health check.\n\nSet the `base_url` collection variable to your app URL, e.g. http://127.0.0.1:8000 or http://127.0.0.1:8123 for `php artisan serve --port=8123`.\n\nFor local testing without a real SMS gateway, set `sms_test_mobile` / `sms_test_otp` in the admin dashboard under Settings → SMS / OTP API, then use those exact values below in `mobile` / `otp`.\n\n\"Verify OTP\" has a test script that automatically saves the returned token into the `token` collection variable, so every authenticated request below picks it up without manual copy/paste.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000", "type": "string" },
+    { "key": "mobile", "value": "9999999999", "type": "string" },
+    { "key": "otp", "value": "1234", "type": "string" },
+    { "key": "token", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/v1/health",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth — OTP Login",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"{{mobile}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/send-otp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "send-otp"]
+            },
+            "description": "Rate-limited to 3/min per IP, plus 3 sends per 10-minute rolling window per mobile number. Use the sms_test_mobile value (Settings → SMS / OTP API) to skip the real SMS gateway in dev."
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    const token = body?.data?.token;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('token', token);",
+                  "        console.log('Saved bearer token to {{token}}');",
+                  "    }",
+                  "}",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"{{mobile}}\",\n  \"otp\": \"{{otp}}\",\n  \"name\": \"Test User\",\n  \"device_name\": \"postman-test\",\n  \"platform\": \"android\",\n  \"fcm_token\": \"sample-fcm-token-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/verify-otp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "verify-otp"]
+            },
+            "description": "Rate-limited to 10/min per IP, plus 5 failed attempts per OTP before it's invalidated. On success, saves the bearer token into the {{token}} collection variable automatically."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account (requires bearer token)",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/update-profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Login History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login-history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login-history"]
+            }
+          }
+        },
+        {
+          "name": "Logout (current device)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Revokes only the token used on this request. Try 'Get Profile' again afterwards — it should return 401."
+          }
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout-all"]
+            },
+            "description": "Revokes every Sanctum token this user holds, across all devices."
+          }
+        }
+      ]
+    }
+  ]
+}

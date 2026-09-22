@@ -20,7 +20,7 @@ if (! function_exists('responseSuccess')) {
     /**
      * Shortcut for a standardized success JSON response.
      */
-    function responseSuccess(mixed $data = null, string $message = 'Success', int $code = 200, array $meta = [])
+    function responseSuccess(mixed $data = null, string $message = '', int $code = 200, array $meta = [])
     {
         return ApiResponse::success($data, $message, $code, $meta);
     }
@@ -30,7 +30,7 @@ if (! function_exists('responseError')) {
     /**
      * Shortcut for a standardized error JSON response.
      */
-    function responseError(string $message = 'Something went wrong', mixed $errors = null, int $code = 400, array $meta = [])
+    function responseError(string $message = '', mixed $errors = null, int $code = 422, array $meta = [])
     {
         return ApiResponse::error($message, $errors, $code, $meta);
     }

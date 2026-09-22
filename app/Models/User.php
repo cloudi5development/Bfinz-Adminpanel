@@ -8,17 +8,20 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * `is_super_admin` is deliberately absent: the account that owns the panel is
-     * chosen by migration only, so no form post can promote itself.
+     * chosen by migration only, so no form post can promote itself. `modules` and
+     * `is_active` are admin-panel-only concerns — the mobile OTP login flow must
+     * never mass-assign them onto a mobile app account.
      *
      * @var list<string>
      */
@@ -28,6 +31,9 @@ class User extends Authenticatable
         'password',
         'is_active',
         'modules',
+        'mobile',
+        'mobile_verified_at',
+        'is_mobile_verified',
     ];
 
     /**
@@ -50,9 +56,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'last_active_at' => 'datetime',
+            'mobile_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
+            'is_mobile_verified' => 'boolean',
             'modules' => 'array',
         ];
     }

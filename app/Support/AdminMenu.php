@@ -187,6 +187,7 @@ class AdminMenu
                 'children' => [
                     ['name' => 'general',    'label' => 'General Settings',   'path' => 'settings/general',    'type' => 'custom', 'view' => 'backend.pages.settings-general'],
                     ['name' => 'app',        'label' => 'App Settings',       'path' => 'settings/app',        'type' => 'custom', 'view' => 'backend.pages.settings-app'],
+                    ['name' => 'sms',        'label' => 'SMS / OTP API',      'path' => 'settings/sms',        'type' => 'custom', 'view' => 'backend.pages.settings-sms'],
                     ['name' => 'features',   'label' => 'Feature Controls',   'path' => 'settings/features',   'type' => 'custom', 'view' => 'backend.pages.settings-features'],
                     ['name' => 'privacy',    'label' => 'Privacy Policy',     'path' => 'settings/privacy',    'type' => 'custom', 'view' => 'backend.pages.settings-legal'],
                     ['name' => 'terms',      'label' => 'Terms & Conditions', 'path' => 'settings/terms',      'type' => 'custom', 'view' => 'backend.pages.settings-legal'],

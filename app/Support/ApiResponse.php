@@ -2,61 +2,68 @@
 
 namespace App\Support;
 
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * Standardized JSON envelope for every API response so clients can rely on a
- * single, predictable shape: { success, message, data, errors, pagination,
- * meta, status }.
+ * Standardized JSON envelope for every API response: { status, data, message,
+ * ...extra }. A paginator passed as $data has its page info merged in at the
+ * top level (current_page/per_page/total/last_page, or the cursor
+ * equivalents) instead of nested under a separate key.
  */
 class ApiResponse
 {
-    public static function success(mixed $data = null, string $message = 'Success', int $code = 200, array $meta = []): JsonResponse
+    public static function success(mixed $data = null, string $message = '', int $code = 200, array $extra = []): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'data' => $data,
-            'errors' => null,
-            'pagination' => null,
-            'meta' => $meta ?: null,
-            'status' => $code,
-        ], $code);
+        $response = ['status' => true];
+
+        $resource = $data instanceof AnonymousResourceCollection ? $data->resource : $data;
+
+        if ($resource instanceof CursorPaginator) {
+            $response['data'] = $data instanceof AnonymousResourceCollection ? $data->collection->toArray() : $resource->items();
+            $response['next_cursor'] = $resource->nextCursor()?->encode();
+            $response['prev_cursor'] = $resource->previousCursor()?->encode();
+            $response['has_more'] = $resource->hasMorePages();
+            $response['per_page'] = $resource->perPage();
+        } elseif ($resource instanceof Paginator) {
+            $response['data'] = $data instanceof AnonymousResourceCollection ? $data->collection->toArray() : $resource->items();
+            $response['current_page'] = $resource->currentPage();
+            $response['per_page'] = $resource->perPage();
+            $response['total'] = method_exists($resource, 'total') ? $resource->total() : null;
+            $response['last_page'] = method_exists($resource, 'lastPage') ? $resource->lastPage() : null;
+        } else {
+            $response['data'] = $data;
+        }
+
+        if ($message !== '') {
+            $response['message'] = $message;
+        }
+
+        foreach ($extra as $key => $value) {
+            $response[$key] = $value;
+        }
+
+        return response()->json($response, $code);
     }
 
-    public static function error(string $message = 'Something went wrong', mixed $errors = null, int $code = 400, array $meta = []): JsonResponse
+    public static function error(string $message = '', mixed $errors = null, int $code = 422, array $extra = []): JsonResponse
     {
-        return response()->json([
-            'success' => false,
-            'message' => $message,
-            'data' => null,
-            'errors' => $errors,
-            'pagination' => null,
-            'meta' => $meta ?: null,
-            'status' => $code,
-        ], $code);
-    }
+        $response = ['status' => false];
 
-    public static function paginated(LengthAwarePaginator $paginator, string $message = 'Success', ?string $resourceClass = null): JsonResponse
-    {
-        $items = $resourceClass ? $resourceClass::collection($paginator->items()) : $paginator->items();
+        if ($message !== '') {
+            $response['message'] = $message;
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'data' => $items,
-            'errors' => null,
-            'pagination' => [
-                'current_page' => $paginator->currentPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-                'last_page' => $paginator->lastPage(),
-                'from' => $paginator->firstItem(),
-                'to' => $paginator->lastItem(),
-            ],
-            'meta' => null,
-            'status' => 200,
-        ]);
+        if (! empty($errors)) {
+            $response['data'] = $errors;
+        }
+
+        foreach ($extra as $key => $value) {
+            $response[$key] = $value;
+        }
+
+        return response()->json($response, $code);
     }
 }

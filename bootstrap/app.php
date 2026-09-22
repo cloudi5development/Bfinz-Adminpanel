@@ -36,6 +36,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
             'admin.module' => \App\Http\Middleware\EnsureModuleAccess::class,
         ]);
+
+        // Laravel's default Authenticate middleware redirects guests to a
+        // route named "login" (which doesn't exist here — the admin login is
+        // "backend.auth.login"). Without this, an unauthenticated auth:sanctum
+        // request that doesn't send Accept: application/json crashes with
+        // "Route [login] not defined" instead of the normal 401 JSON envelope.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : route('backend.auth.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Render exceptions as the standard ApiResponse envelope for API /

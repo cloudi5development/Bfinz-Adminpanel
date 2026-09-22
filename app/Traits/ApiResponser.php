@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Support\ApiResponse;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -12,18 +11,13 @@ use Illuminate\Http\JsonResponse;
  */
 trait ApiResponser
 {
-    protected function success(mixed $data = null, string $message = 'Success', int $code = 200, array $meta = []): JsonResponse
+    protected function success(mixed $data = null, string $message = '', int $code = 200, array $extra = []): JsonResponse
     {
-        return ApiResponse::success($data, $message, $code, $meta);
+        return ApiResponse::success($data, $message, $code, $extra);
     }
 
-    protected function error(string $message = 'Something went wrong', mixed $errors = null, int $code = 400, array $meta = []): JsonResponse
+    protected function error(string $message = '', mixed $errors = null, int $code = 422, array $extra = []): JsonResponse
     {
-        return ApiResponse::error($message, $errors, $code, $meta);
-    }
-
-    protected function paginated(LengthAwarePaginator $paginator, string $message = 'Success', ?string $resourceClass = null): JsonResponse
-    {
-        return ApiResponse::paginated($paginator, $message, $resourceClass);
+        return ApiResponse::error($message, $errors, $code, $extra);
     }
 }

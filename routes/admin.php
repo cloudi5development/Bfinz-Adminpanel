@@ -3,6 +3,7 @@
 use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ModuleController;
+use App\Http\Controllers\Backend\SmsSettingController;
 use App\Support\AdminMenu;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,10 @@ Route::prefix('admin')->name('backend.')->group(function () {
     Route::middleware(['admin.auth', 'admin.module'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Settings pages are otherwise GET-only (rendered by ModuleController
+        // below); this is the one save action wired to real storage.
+        Route::post('/settings/sms', [SmsSettingController::class, 'update'])->name('settings.sms.update');
 
         // Every other page in the sidebar tree.
         foreach (AdminMenu::pages() as $routeName => $page) {
