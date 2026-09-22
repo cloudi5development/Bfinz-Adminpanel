@@ -50,7 +50,7 @@ class SendSmsService
                 'DLTTemplateId' => Setting::get('sms_otp_dlt_template_id'),
             ]);
 
-            dd($response->body());
+            // dd($response->body());
             $json = $response->json();
 
             if (($json['ErrorCode'] ?? null) === '000') {
