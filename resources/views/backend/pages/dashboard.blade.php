@@ -1,9 +1,9 @@
 {{--
     Bfinz admin dashboard.
 
-    Eight blocks, in the order an operator actually scans them: the headline
-    counters, then activity and feature usage, then the ranked lists, then the
-    recent records, then system health and the shortcuts.
+    Seven blocks, in the order an operator actually scans them: the headline
+    counters, the statistic split and market trend, then the ranked lists, the
+    recent records, and the shortcuts.
 
     All figures come from App\Support\MockData — see DashboardController.
 --}}
@@ -27,52 +27,77 @@
         @endforeach
     </div>
 
-    {{-- B + C. Activity chart and feature usage -------------------------- --}}
-    <div class="grid grid--2-1 u-mt-3">
+    {{-- B. Current statistic + market overview -------------------------- --}}
+    <div class="stat-row u-mt-3">
 
-        <div class="card" id="activityChart">
+        <div class="card">
             <div class="card__head">
-                <div>
-                    <h2 class="card__title">User Activity</h2>
-                    <p class="card__desc">Active users over time.</p>
-                </div>
-
-                {{-- The range switch belongs with the chart it drives. --}}
-                <div class="segmented" data-segment="#activityChart" role="group" aria-label="Chart range">
-                    <button type="button" data-segment-value="daily" aria-pressed="false">Daily</button>
-                    <button type="button" data-segment-value="weekly" aria-pressed="false">Weekly</button>
-                    <button type="button" data-segment-value="monthly" class="is-active" aria-pressed="true">Monthly</button>
-                </div>
+                <h2 class="card__title">Current Statistic</h2>
             </div>
 
             <div class="card__body">
-                @foreach ($activity as $range => $series)
-                    <div data-series="{{ $range }}" class="{{ $range === 'monthly' ? '' : 'u-hide' }}">
-                        <x-admin.chart-area
-                            :id="'activity-' . $range"
-                            :labels="$series['labels']"
-                            :values="$series['values']"
-                            :height="268">{{ ucfirst($range) }} active users</x-admin.chart-area>
-                    </div>
-                @endforeach
+                <x-admin.chart-arcs :data="$statistic" />
+
+                <div class="legend">
+                    @foreach ($statistic as $item)
+                        <div class="legend__row">
+                            <span class="legend__dot" style="background:{{ $item['colour'] }}" aria-hidden="true"></span>
+                            <span class="legend__label">
+                                {{ $item['label'] }}
+                                <span class="legend__pct">({{ $item['percent'] }}%)</span>
+                            </span>
+                            <span class="legend__value">{{ $item['value'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 
         <div class="card">
             <div class="card__head">
                 <div>
-                    <h2 class="card__title">Feature Usage</h2>
-                    <p class="card__desc">Opens in the last 30 days.</p>
+                    <h2 class="card__title">Market Overview</h2>
+                    <p class="card__desc">Weekly views across the market rate screens.</p>
+                </div>
+
+                <div class="u-row u-row--sm u-wrap">
+                    <div class="series-toggles" role="group" aria-label="Series shown">
+                        @foreach ($market['series'] as $s)
+                            <label class="series-toggle {{ $s['on'] ? 'is-on' : '' }}"
+                                   style="--series: {{ $s['colour'] }}">
+                                <input type="checkbox" @checked($s['on'])>
+                                <span class="series-toggle__mark" aria-hidden="true"></span>
+                                <span>{{ $s['name'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <label class="visually-hidden" for="marketPeriod">Reporting period</label>
+                    <select class="select select--pill" id="marketPeriod">
+                        <option>Weekly (2026)</option>
+                        <option>Monthly (2026)</option>
+                        <option>Yearly</option>
+                    </select>
                 </div>
             </div>
+
             <div class="card__body">
-                <x-admin.chart-bars :data="$featureUsage" />
+                {{-- Scrolls on narrow screens. The SVG scales uniformly to keep
+                     its labels undistorted, which means they also shrink with
+                     the container — below ~1100px a min-width plus scroll keeps
+                     them readable instead of microscopic. --}}
+                <div class="chart-scroll">
+                    <x-admin.chart-lines
+                        :labels="$market['labels']"
+                        :series="$market['series']"
+                        :highlight="$market['highlight']" />
+                </div>
             </div>
         </div>
 
     </div>
 
-    {{-- D + E. Ranked tools and most-viewed rates ----------------------- --}}
+    {{-- C + D. Ranked tools and most-viewed rates ----------------------- --}}
     <div class="grid grid--2 u-mt-3">
 
         <div class="card">
@@ -135,7 +160,7 @@
 
     </div>
 
-    {{-- F + G. Recent users and admin activity -------------------------- --}}
+    {{-- E + F. Recent users and admin activity -------------------------- --}}
     <div class="grid grid--2-1 u-mt-3">
 
         <div class="card">
@@ -210,7 +235,7 @@
 
     </div>
 
-    {{-- H. Quick actions -------------------------------------------------- --}}
+    {{-- G. Quick actions -------------------------------------------------- --}}
     <x-admin.section-header
         title="Quick Actions"
         description="Jump straight to the records most often added." />

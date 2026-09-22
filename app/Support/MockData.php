@@ -55,35 +55,46 @@ class MockData
         ];
     }
 
-    /** User activity area chart — three switchable ranges. */
-    public static function userActivitySeries(): array
+    /**
+     * "Current Statistic" — the nested-arc gauge under the KPI row.
+     *
+     * The percentages are independent, not parts of a whole: each is the share
+     * of active users who touched that area of the app in the last 30 days.
+     * That is why they do not sum to 100, and why the chart is concentric arcs
+     * rather than a pie.
+     */
+    public static function currentStatistic(): array
     {
         return [
-            'daily' => [
-                'labels' => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                'values' => [1180, 1340, 1275, 1490, 1620, 1385, 1120],
-            ],
-            'weekly' => [
-                'labels' => ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'],
-                'values' => [6820, 7140, 7460, 7210, 7890, 8240, 8060, 8420],
-            ],
-            'monthly' => [
-                'labels' => ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                'values' => [5240, 6180, 6840, 7420, 7960, 8420],
-            ],
+            ['label' => 'Calculators',  'percent' => 66, 'value' => '35,420', 'colour' => '#0066FF'],
+            ['label' => 'Rate Views',   'percent' => 50, 'value' => '54,570', 'colour' => '#061A5C'],
+            ['label' => 'Comparisons',  'percent' => 11, 'value' => '4,280',  'colour' => '#F59E0B'],
+            ['label' => 'Goal Plans',   'percent' => 22, 'value' => '6,840',  'colour' => '#16A34A'],
         ];
     }
 
-    /** Feature usage bar chart. */
-    public static function featureUsage(): array
+    /**
+     * "Market Overview" — weekly views of each market rate screen.
+     *
+     * Views rather than the rates themselves: gold at ₹6,850 and silver at
+     * ₹92,400 share no sensible axis, but how often each screen is opened does.
+     */
+    public static function marketOverview(): array
     {
         return [
-            ['label' => 'EMI Calculator',  'value' => 12480],
-            ['label' => 'SIP Calculator',  'value' => 9240],
-            ['label' => 'Gold Rate',       'value' => 8630],
-            ['label' => 'IFSC Search',     'value' => 6180],
-            ['label' => 'Loan Comparison', 'value' => 4280],
-            ['label' => 'FD Calculator',   'value' => 3640],
+            'labels' => ['Week 01', 'Week 02', 'Week 03', 'Week 04', 'Week 05',
+                         'Week 06', 'Week 07', 'Week 08', 'Week 09', 'Week 10'],
+            'highlight' => ['index' => 7, 'series' => 0, 'label' => '8.2k views', 'sub' => 'Week 08 · Gold'],
+            'series' => [
+                ['name' => 'Gold',      'colour' => '#F59E0B', 'on' => true,
+                 'values' => [4200, 5100, 4800, 6300, 5900, 7400, 6800, 8200, 7600, 8900]],
+                ['name' => 'Silver',    'colour' => '#0066FF', 'on' => true,
+                 'values' => [6800, 6200, 7100, 5400, 6600, 4900, 5800, 5100, 6400, 7900]],
+                ['name' => 'USD / INR', 'colour' => '#1747C8', 'on' => false,
+                 'values' => [3100, 3400, 3200, 3900, 3600, 4100, 3800, 4400, 4200, 4700]],
+                ['name' => 'Petrol',    'colour' => '#64748B', 'on' => false,
+                 'values' => [2600, 2900, 2700, 3200, 3000, 3500, 3300, 3700, 3500, 3900]],
+            ],
         ];
     }
 

@@ -23,8 +23,8 @@ class DashboardController extends Controller
             'breadcrumb' => AdminMenu::breadcrumb('backend.dashboard'),
 
             'stats'        => MockData::dashboardStats(),
-            'activity'     => MockData::userActivitySeries(),
-            'featureUsage' => MockData::featureUsage(),
+            'statistic'    => MockData::currentStatistic(),
+            'market'       => MockData::marketOverview(),
             'topTools'     => MockData::topTools(),
             'topRates'     => MockData::mostViewedRates(),
             'recentUsers'  => MockData::recentUsers(),

@@ -2033,3 +2033,675 @@ td.is-actions, th.is-actions { text-align: right; white-space: nowrap; }
     .kpi-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .kpi__value { font-size: 26px; }
 }
+
+/* ==========================================================================
+   23. Current Statistic + Market Overview
+   ========================================================================== */
+
+/* Narrow gauge card beside a wide chart card. */
+.stat-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.chart-arcs {
+    display: block;
+    width: 100%;
+    max-width: 230px;
+    margin: 4px auto 18px;
+    height: auto;
+}
+
+/* Legend ------------------------------------------------------------------ */
+
+.legend { display: grid; gap: 2px; }
+
+.legend__row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.legend__row:last-child { border-bottom: 0; }
+
+.legend__dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.legend__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 12.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.legend__pct { color: var(--text-2); font-weight: 500; }
+
+.legend__value {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Series toggles ---------------------------------------------------------- */
+
+.series-toggles { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+.series-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.series-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.series-toggle__mark {
+    width: 15px; height: 15px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    position: relative;
+    transition: background .15s var(--ease), border-color .15s var(--ease);
+}
+
+.series-toggle.is-on { color: var(--text); }
+
+.series-toggle.is-on .series-toggle__mark {
+    background: var(--series, var(--primary));
+    border-color: var(--series, var(--primary));
+}
+
+/* The tick, drawn rather than shipped as an icon — it is 4 pixels of line. */
+.series-toggle.is-on .series-toggle__mark::after {
+    content: "";
+    position: absolute;
+    left: 4.3px; top: 1.6px;
+    width: 3.5px; height: 7px;
+    border: solid #fff;
+    border-width: 0 1.8px 1.8px 0;
+    transform: rotate(45deg);
+}
+
+.series-toggle input:focus-visible + .series-toggle__mark {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* A compact pill select for the period picker. */
+.select--pill {
+    width: auto;
+    min-height: 32px;
+    padding: 4px 30px 4px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    background-position: right 9px center;
+    background-size: 14px;
+}
+
+.chart-lines { display: block; width: 100%; height: auto; }
+
+.chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Below this the labels would scale down past legibility, so scroll instead. */
+.chart-lines { min-width: 620px; }
+
+/* The pair stays side by side for the whole desktop range and only stacks
+   once the sidebar itself becomes a drawer. */
+@media (max-width: 991px) {
+    .stat-row { grid-template-columns: minmax(0, 1fr); }
+    .chart-arcs { max-width: 260px; }
+}
+
+@media (max-width: 640px) {
+    .series-toggles { gap: 10px; }
+    .series-toggle { font-size: 11.5px; }
+}
+
+/* ==========================================================================
+   24. Data table
+   --------------------------------------------------------------------------
+   Every style for the data table component lives here: toolbar, table, badges,
+   row actions, empty state, pagination, modals and toasts.
+
+   Each class is prefixed `dt-` so this block is self-contained and cannot
+   collide with the rest of the theme above.
+   ========================================================================== */
+
+.dt-sr-only {
+    position: absolute; width: 1px; height: 1px;
+    margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.dt-card {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(16, 30, 74, .05);
+}
+
+/* -------------------------------------------------------------- Toolbar -- */
+
+.dt-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    border-bottom: 1px solid #EDF2F9;
+}
+
+.dt-spacer { flex: 1; }
+
+.dt-search { position: relative; flex: 1; min-width: 210px; max-width: 360px; }
+
+.dt-search i {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.dt-search input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px 0 34px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: #111827;
+}
+
+.dt-search input::placeholder { color: #94A3B8; }
+
+.dt-select {
+    height: 38px;
+    min-width: 142px;
+    padding: 0 30px 0 11px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+    appearance: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: #111827;
+    cursor: pointer;
+}
+
+.dt-search input:focus,
+.dt-select:focus {
+    outline: none;
+    border-color: #0066FF;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, .12);
+}
+
+/* -------------------------------------------------------------- Buttons -- */
+
+.dt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.dt-btn i { font-size: 13px; }
+
+.dt-btn--primary { background: #0066FF; color: #fff; }
+.dt-btn--primary:hover { background: #0052CC; }
+
+.dt-btn--ghost { background: #fff; color: #111827; border-color: #E2E8F0; }
+.dt-btn--ghost:hover { background: #EEF5FF; border-color: #C7D9FF; color: #0066FF; }
+
+.dt-btn--danger { background: #DC2626; color: #fff; }
+.dt-btn--danger:hover { background: #B91C1C; }
+
+/* ---------------------------------------------------------------- Table -- */
+
+.dt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.dt-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.dt-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #FBFCFE;
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 1px solid #E2E8F0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #64748B;
+    white-space: nowrap;
+}
+
+.dt-sortable { cursor: pointer; user-select: none; }
+.dt-sortable:hover { color: #0066FF; }
+
+/* No sort glyph in the header. Clicking a column still sorts; the active
+   column is marked by colour alone, which keeps the header row clean. */
+.dt-table th[data-dir] { color: #0066FF; }
+
+.dt-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #EDF2F9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.dt-table tbody tr { transition: background .12s ease; }
+.dt-table tbody tr:hover { background: #FAFCFF; }
+.dt-table tbody tr:last-child td { border-bottom: 0; }
+
+.dt-right  { text-align: right; }
+.dt-strong { color: #111827; font-weight: 600; }
+.dt-muted  { color: #64748B; }
+.dt-mono   { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; color: #475569; }
+.dt-amount { font-weight: 650; color: #111827; font-variant-numeric: tabular-nums; }
+.dt-truncate { display: block; max-width: 34ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --------------------------------------------------------- Cell content -- */
+
+.dt-entity { display: inline-flex; align-items: center; gap: 10px; }
+
+.dt-avatar {
+    width: 26px; height: 26px;
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0066FF, #061A5C);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+.dt-entity-name { display: block; font-weight: 600; color: #111827; white-space: nowrap; }
+.dt-entity-sub  { display: block; font-size: 11.5px; color: #64748B; white-space: nowrap; }
+
+.dt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.dt-badge::before {
+    content: "";
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.dt-badge--green { background: #E7F7EE; color: #15803D; }
+.dt-badge--amber { background: #FEF4E2; color: #B45309; }
+.dt-badge--red   { background: #FDECEC; color: #B91C1C; }
+.dt-badge--grey  { background: #F1F5F9; color: #475569; }
+.dt-badge--blue  { background: #EEF5FF; color: #0066FF; }
+.dt-badge--navy  { background: #E5EAFA; color: #061A5C; }
+
+.dt-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    background: #F1F5F9;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 550;
+    white-space: nowrap;
+}
+
+.dt-stars { color: #F59E0B; font-size: 12px; letter-spacing: 1px; }
+.dt-stars .fa-regular { color: #E2E8F0; }
+
+.dt-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 650; color: #64748B; }
+.dt-delta i { font-size: 10px; }
+.dt-delta--up   { color: #16A34A; }
+.dt-delta--down { color: #DC2626; }
+
+/* ---------------------------------------------------------- Row actions -- */
+
+.dt-actions { display: inline-flex; align-items: center; gap: 2px; }
+
+.dt-icon-btn {
+    width: 30px; height: 30px;
+    display: inline-grid;
+    place-items: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748B;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.dt-icon-btn:hover { background: #EEF5FF; color: #0066FF; }
+.dt-icon-btn--danger:hover { background: #FDECEC; color: #DC2626; }
+
+/* ---------------------------------------------------------- Empty state -- */
+
+.dt-empty { padding: 48px 24px; text-align: center; }
+
+.dt-empty > i {
+    display: inline-grid;
+    place-items: center;
+    width: 56px; height: 56px;
+    margin-bottom: 14px;
+    border-radius: 16px;
+    background: #EEF5FF;
+    color: #0066FF;
+    font-size: 22px;
+}
+
+.dt-empty-title { font-size: 15px; font-weight: 650; color: #111827; margin: 0; }
+.dt-empty-body  { font-size: 13px; color: #64748B; margin: 5px 0 16px; }
+
+/* ----------------------------------------------------------- Pagination -- */
+
+.dt-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 13px 18px;
+    border-top: 1px solid #EDF2F9;
+}
+
+.dt-count { font-size: 12.5px; color: #64748B; margin: 0; }
+.dt-count strong { color: #111827; }
+
+.dt-pager { display: flex; align-items: center; gap: 4px; }
+
+.dt-page {
+    min-width: 32px; height: 32px;
+    padding: 0 8px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    background: #fff;
+    color: #64748B;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.dt-page:hover:not(:disabled):not(.dt-gap) { background: #EEF5FF; border-color: #C7D9FF; color: #0066FF; }
+.dt-page.is-current { background: #0066FF; border-color: #0066FF; color: #fff; }
+.dt-page:disabled { opacity: .45; cursor: default; }
+.dt-gap { border: 0; background: transparent; cursor: default; }
+
+/* --------------------------------------------------------------- Modals -- */
+
+.dt-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.dt-modal[hidden] { display: none; }
+
+.dt-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 26, 92, .5);
+}
+
+.dt-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(16, 30, 74, .22);
+    animation: dtIn .18s ease;
+}
+
+.dt-modal-box--sm { max-width: 440px; }
+
+@keyframes dtIn {
+    from { opacity: 0; transform: translateY(10px) scale(.99); }
+    to   { opacity: 1; transform: none; }
+}
+
+.dt-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #EDF2F9;
+}
+
+.dt-modal-title { flex: 1; margin: 0; font-size: 16px; font-weight: 650; color: #111827; }
+
+.dt-modal-icon {
+    width: 38px; height: 38px;
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #FDECEC;
+    color: #DC2626;
+    font-size: 16px;
+}
+
+.dt-modal-body { padding: 18px 20px; overflow-y: auto; }
+.dt-modal-note { font-size: 12.5px; color: #64748B; margin: 0 0 16px; }
+.dt-modal-text { font-size: 13.5px; color: #334155; line-height: 1.65; margin: 0; }
+
+.dt-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 16px 0 0;
+    padding: 12px 14px;
+    border: 1px solid #F5C9C9;
+    border-radius: 8px;
+    background: #FDECEC;
+    color: #B91C1C;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.dt-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    padding: 14px 20px 18px;
+}
+
+/* ---------------------------------------------------------- Modal forms -- */
+
+.dt-field { margin-bottom: 15px; }
+
+.dt-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.dt-req { color: #DC2626; }
+
+.dt-field input,
+.dt-field select,
+.dt-field textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: #111827;
+}
+
+.dt-field textarea { resize: vertical; line-height: 1.6; }
+
+.dt-field input:focus,
+.dt-field select:focus,
+.dt-field textarea:focus {
+    outline: none;
+    border-color: #0066FF;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, .12);
+}
+
+.dt-field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+
+/* Key/value list in the view modal */
+.dt-kv { margin: 0; }
+.dt-kv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #EDF2F9;
+}
+.dt-kv-row:last-child { border-bottom: 0; }
+.dt-kv dt { font-size: 12.5px; color: #64748B; }
+.dt-kv dd { margin: 0; font-size: 13px; font-weight: 600; color: #111827; text-align: right; }
+
+/* --------------------------------------------------------------- Toasts -- */
+
+.dt-toasts {
+    position: fixed;
+    right: 20px; bottom: 20px;
+    z-index: 300;
+    display: grid;
+    gap: 9px;
+    width: 320px;
+    max-width: calc(100vw - 40px);
+}
+
+.dt-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+    border: 1px solid #E2E8F0;
+    border-left: 3px solid #16A34A;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 12px 36px rgba(16, 30, 74, .14);
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    animation: dtToast .22s ease;
+}
+
+.dt-toast i { color: #16A34A; }
+
+@keyframes dtToast {
+    from { opacity: 0; transform: translateX(18px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ----------------------------------------------------------- Responsive -- */
+
+@media (max-width: 640px) {
+    .dt-toolbar { padding: 12px 14px; }
+    .dt-search { flex: 1 0 100%; max-width: none; }
+    .dt-select { flex: 1 1 auto; min-width: 0; }
+    .dt-btn { flex: 1 1 auto; }
+    .dt-spacer { display: none; }
+    .dt-field-row { grid-template-columns: minmax(0, 1fr); }
+    .dt-foot { padding: 12px 14px; }
+    .dt-toasts { right: 12px; left: 12px; bottom: 12px; width: auto; }
+}
+
+/* Page heading above the table — plain markup, styles kept with the table. */
+
+.dt-page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.dt-page-head h1 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 680;
+    letter-spacing: -.02em;
+    color: #111827;
+}
+
+.dt-page-head p {
+    margin: 5px 0 0;
+    max-width: 70ch;
+    font-size: 13.5px;
+    color: #64748B;
+}
+
+.dt-page-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+    .dt-page-head { align-items: flex-start; }
+    .dt-page-head h1 { font-size: 20px; }
+}

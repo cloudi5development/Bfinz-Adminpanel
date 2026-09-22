@@ -1,9 +1,12 @@
 {{--
     The standard list screen.
 
-    Driven entirely by the page entry in AdminMenu and the matching definition
-    in MockTables, so every module in the panel gets the same toolbar, table,
-    empty state and pagination without a bespoke view.
+    Plain HTML for the page heading, then the one data-table component, which
+    carries its own toolbar, table, pagination and modals. Nothing else is
+    pulled in — the only Blade component on this page is <x-admin.data-table>.
+
+    Column definitions and rows come from App\Support\MockTables, keyed by the
+    current route, so each module shows its own records through the same table.
 --}}
 @extends('backend.template.layouts.template-base')
 
@@ -14,23 +17,29 @@
 
 @section('content')
 
-    <x-admin.page-header
-        :title="$page['label']"
-        :description="'Manage ' . strtolower($page['label']) . ' records for the Bfinz mobile app. ' . ($table['total'] ? number_format($table['total']) . ' records in this module.' : '')">
+    <div class="dt-page-head">
+        <div>
+            <h1>{{ $page['label'] }}</h1>
+            <p>
+                Manage {{ strtolower($page['label']) }} records for the Bfinz mobile app.
+                @if ($table['total'])
+                    {{ number_format($table['total']) }} records in this module.
+                @endif
+            </p>
+        </div>
 
-        <button type="button" class="btn btn--ghost"
-                data-toast="Filters"
-                data-toast-body="Advanced filtering arrives with the API phase."
-                data-toast-tone="info">
-            <x-admin.icon name="filter" /> Filters
-        </button>
-
-        @if ($table['primary'])
-            <button type="button" class="btn btn--primary" data-modal-open="{{ $tableId }}AddModal">
-                <x-admin.icon name="plus" /> {{ $table['primary'] }}
+        <div class="dt-page-actions">
+            <button type="button" class="dt-btn dt-btn--ghost" data-dt-toast="Filters coming with the API phase">
+                <i class="fa-solid fa-filter"></i> Filters
             </button>
-        @endif
-    </x-admin.page-header>
+
+            @if ($table['primary'])
+                <button type="button" class="dt-btn dt-btn--primary" data-dt-open="{{ $tableId }}FormModal">
+                    <i class="fa-solid fa-plus"></i> {{ $table['primary'] }}
+                </button>
+            @endif
+        </div>
+    </div>
 
     <x-admin.data-table
         :id="$tableId"
