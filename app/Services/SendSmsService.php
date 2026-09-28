@@ -35,7 +35,7 @@ class SendSmsService
             return false;
         }
 
-        $message = "{$otp} is your one-time password for account login. Valid for 5 minutes. Do not share with anyone. Thanks, Chotekisan Team";
+        $message = "{$otp} is your one-time password for account login. Valid for 10 minutes. Do not share with anyone. Thanks, Chotekisan Team";
 
         try {
             $response = Http::timeout(10)->get(self::GATEWAY_URL, [
