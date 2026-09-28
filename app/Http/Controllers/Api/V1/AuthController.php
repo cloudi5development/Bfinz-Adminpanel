@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\Api\RegisterDeviceRequest;
 use App\Http\Requests\Api\SendOtpRequest;
 use App\Http\Requests\Api\VerifyOtpRequest;
 use App\Http\Resources\Api\Auth\LoginHistoryResource;
@@ -28,9 +29,21 @@ class AuthController extends Controller
 
     public function sendOtp(SendOtpRequest $request): JsonResponse
     {
-        $this->otp->send($request->mobile);
+        $this->otp->send($request->mobile, $request->ip());
 
         return $this->success(null, 'OTP sent successfully.');
+    }
+
+    /**
+     * Functionally identical to sendOtp — a distinct route/method so the
+     * client can express intent (initial send vs. "resend") and so the two
+     * can diverge later (e.g. different copy) without an API change.
+     */
+    public function resendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $this->otp->send($request->mobile, $request->ip());
+
+        return $this->success(null, 'OTP resent successfully.');
     }
 
     public function verifyOtp(VerifyOtpRequest $request): JsonResponse
@@ -67,6 +80,43 @@ class AuthController extends Controller
         $request->user()->update($data);
 
         return $this->success(new UserResource($request->user()->fresh()), 'Profile updated.');
+    }
+
+    /**
+     * Soft-delete + anonymise the account (app-store account-deletion
+     * requirement). Mobile is cleared rather than kept, so the number is
+     * free to sign up again; all tokens are revoked immediately.
+     */
+    public function deleteProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->tokens()->delete();
+        UserFcmToken::where('user_id', $user->id)->delete();
+
+        $user->update([
+            'name' => 'Deleted User',
+            'email' => null,
+            'mobile' => null,
+            'mobile_verified_at' => null,
+            'is_mobile_verified' => false,
+        ]);
+        $user->delete();
+
+        return $this->success(null, 'Account deleted.');
+    }
+
+    public function registerDevice(RegisterDeviceRequest $request): JsonResponse
+    {
+        $this->auth->saveFcmToken(
+            $request->user(),
+            $request->fcm_token,
+            $request->device_name,
+            $request->platform,
+            $request->app_version,
+        );
+
+        return $this->success(null, 'Device registered.');
     }
 
     public function loginHistory(Request $request): JsonResponse

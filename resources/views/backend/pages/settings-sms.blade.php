@@ -114,8 +114,8 @@
 
                     <div class="field">
                         <label class="field__label" for="sms_test_otp">Test OTP</label>
-                        <input class="input" id="sms_test_otp" name="sms_test_otp" inputmode="numeric" maxlength="4"
-                               placeholder="4-digit code, e.g. 1234"
+                        <input class="input" id="sms_test_otp" name="sms_test_otp" inputmode="numeric" maxlength="6"
+                               placeholder="6-digit code, e.g. 123456"
                                value="{{ old('sms_test_otp', App\Models\Setting::get('sms_test_otp')) }}">
                         @error('sms_test_otp') <p class="field__hint" style="color:#c0392b">{{ $message }}</p> @enderror
                     </div>

@@ -12,7 +12,16 @@ class UserFcmToken extends Model
         'fcm_token',
         'device_name',
         'platform',
+        'app_version',
+        'last_seen_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'last_seen_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {

@@ -8,7 +8,8 @@ class OtpVerification extends Model
 {
     protected $fillable = [
         'mobile',
-        'otp',
+        'otp_hash',
+        'ip',
         'expires_at',
         'attempts',
         'last_sent_at',

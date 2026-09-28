@@ -24,5 +24,14 @@ class DatabaseSeeder extends Seeder
 
         // The account that signs in to the admin panel.
         $this->call(AdminUserSeeder::class);
+
+        // Bfinz masters: states/cities/banks power the /master/* endpoints
+        // and every module's location/bank filters.
+        $this->call([
+            StatesSeeder::class,
+            CitiesSeeder::class,
+            BanksSeeder::class,
+            CurrenciesSeeder::class,
+        ]);
     }
 }

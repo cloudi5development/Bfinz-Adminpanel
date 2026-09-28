@@ -6,14 +6,22 @@ namespace App\Models;
 use App\Support\AdminModules;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Deliberately does not use Illuminate\Notifications\Notifiable: this app's
+ * own `notifications` table/model (App\Models\Notification, a
+ * docs/BUILD_SPEC.md §5 concept — alert pushes, broadcasts) has a different
+ * schema than Laravel's built-in notifications table that trait expects.
+ * Mixing the two would silently corrupt whichever one wrote last.
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -84,5 +92,15 @@ class User extends Authenticatable
         }
 
         return in_array($module, $this->modules ?? [], true);
+    }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(Alert::class);
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
     }
 }

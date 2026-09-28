@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Event;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -26,9 +25,11 @@ return new class extends Migration
         // An event is drawn on four surfaces (carousel, listing, its own hero,
         // the sidebar), so its colour has to be stored or it would change from
         // page to page. Dealt here in the order the carousel and the listing use.
+        // Inlined from the (since-removed) Event::TONES constant — migrations
+        // must not depend on application model classes that may no longer exist.
         $this->deal(
             'events',
-            Event::TONES,
+            ['purple', 'teal', 'green'],
             DB::table('events')->orderBy('sort_order')->orderBy('id')->pluck('id')
         );
     }

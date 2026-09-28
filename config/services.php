@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bfinz market-data providers
+    |--------------------------------------------------------------------------
+    |
+    | Which adapter App\Providers\AppServiceProvider binds for each provider
+    | interface (see App\Contracts\Providers). Swapping a provider is a config
+    | change plus a new adapter class — nothing else in the sync/API layer
+    | needs to change. See docs/BUILD_SPEC.md §13 Q2 (gold/silver provider is
+    | still an open decision; "manual" is the placeholder until then).
+    |
+    */
+    'metal_rate_provider' => env('METAL_RATE_PROVIDER', 'manual'),
+    'forex_rate_provider' => env('FOREX_RATE_PROVIDER', 'frankfurter'),
+    'push_sender' => env('PUSH_SENDER', 'log'),
+
 ];

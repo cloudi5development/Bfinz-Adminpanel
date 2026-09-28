@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\MarketRateSettingController;
 use App\Http\Controllers\Backend\ModuleController;
 use App\Http\Controllers\Backend\SmsSettingController;
 use App\Support\AdminMenu;
@@ -50,6 +51,7 @@ Route::prefix('admin')->name('backend.')->group(function () {
         // Settings pages are otherwise GET-only (rendered by ModuleController
         // below); this is the one save action wired to real storage.
         Route::post('/settings/sms', [SmsSettingController::class, 'update'])->name('settings.sms.update');
+        Route::post('/settings/market-rates', [MarketRateSettingController::class, 'update'])->name('settings.market-rates.update');
 
         // Every other page in the sidebar tree.
         foreach (AdminMenu::pages() as $routeName => $page) {

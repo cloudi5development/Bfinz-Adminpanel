@@ -23,7 +23,7 @@ class SmsSettingController extends Controller
             'sms_nettyfish_route' => ['nullable', 'string', 'max:60'],
             'sms_otp_dlt_template_id' => ['nullable', 'string', 'max:60'],
             'sms_test_mobile' => ['nullable', 'digits:10'],
-            'sms_test_otp' => ['nullable', 'digits:4'],
+            'sms_test_otp' => ['nullable', 'digits:6'],
         ]);
 
         // API key is masked in the form once set; leaving it blank on a later

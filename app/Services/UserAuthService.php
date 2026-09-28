@@ -36,17 +36,33 @@ class UserAuthService
         ]);
 
         if (! empty($data['fcm_token'])) {
-            $this->saveFcmToken($user, $data['fcm_token'], $data['device_name'] ?? null, $data['platform'] ?? null);
+            $this->saveFcmToken(
+                $user,
+                $data['fcm_token'],
+                $data['device_name'] ?? null,
+                $data['platform'] ?? null,
+                $data['app_version'] ?? null,
+            );
         }
 
         return $token->plainTextToken;
     }
 
-    public function saveFcmToken(User $user, string $fcmToken, ?string $deviceName, ?string $platform): void
-    {
+    public function saveFcmToken(
+        User $user,
+        string $fcmToken,
+        ?string $deviceName,
+        ?string $platform,
+        ?string $appVersion = null,
+    ): void {
         UserFcmToken::updateOrCreate(
             ['user_id' => $user->id, 'fcm_token' => $fcmToken],
-            ['device_name' => $deviceName, 'platform' => $platform]
+            [
+                'device_name' => $deviceName,
+                'platform' => $platform,
+                'app_version' => $appVersion,
+                'last_seen_at' => now(),
+            ]
         );
     }
 }

@@ -9,7 +9,14 @@ class SendOtpRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'mobile' => ['required', 'digits:10'],
+            'mobile' => ['required', 'regex:/^[6-9]\d{9}$/'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'mobile.regex' => 'Enter a valid 10-digit Indian mobile number.',
         ];
     }
 }

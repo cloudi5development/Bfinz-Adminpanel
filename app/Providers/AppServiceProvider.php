@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Contracts\Providers\ForexRateProvider;
+use App\Contracts\Providers\MetalRateProvider;
+use App\Contracts\Providers\PushSender;
+use App\Providers\Data\AdminManualMetalRateProvider;
+use App\Providers\Data\FrankfurterForexRateProvider;
+use App\Providers\Push\LogPushSender;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -15,7 +21,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(MetalRateProvider::class, match (config('services.metal_rate_provider')) {
+            default => AdminManualMetalRateProvider::class,
+        });
+
+        $this->app->bind(ForexRateProvider::class, match (config('services.forex_rate_provider')) {
+            default => FrankfurterForexRateProvider::class,
+        });
+
+        $this->app->bind(PushSender::class, match (config('services.push_sender')) {
+            default => LogPushSender::class,
+        });
     }
 
     /**
